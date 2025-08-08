@@ -4,7 +4,7 @@ from scheduler.models import SocialSchedule, MediaContentSource,  MediaContent, 
 
 
 class SocialScheduleAdmin(admin.ModelAdmin):
-    list_display = ('social_media', 'social_media_channel', 'schedule', 'last_run')
+    list_display = ('source', 'social_media', 'social_media_channel', 'schedule', 'last_run')
 
 
 class MediaContentImageInline(nested_admin.NestedTabularInline):

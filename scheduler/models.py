@@ -41,6 +41,7 @@ class SocialSchedule(models.Model):
     source = models.ForeignKey(MediaContentSource, on_delete=models.SET_NULL, null=True, blank=True, default="")
     default_caption = models.CharField(max_length=300, blank=True)
     last_run = models.DateTimeField(null=True, blank=True)
+    skip = models.BooleanField(default=False)
 
     def is_due(self, now=None):
         return True
