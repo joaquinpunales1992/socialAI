@@ -22,7 +22,7 @@ PUBLISH_INSTAGRAM_REEL_ENDPOINT = (
 REPLY_INSTAGRAM_COMMENTS_ENDPOINT = (
     "https://social-ai-s1kk.onrender.com/reply-instagram-reel-comments/"
 )
-DOMAIN = "http://127.0.0.1:8000"
+DOMAIN = "https://social-ai.simplifiedbites.com"
 
 
 class Command(BaseCommand):
