@@ -48,9 +48,7 @@ class Command(BaseCommand):
                 schedule_api_token = schedule.api_key
                 schedule_social_media_id = schedule.social_media_id
                 schedule_default_caption = schedule.default_caption
-                import pdb
 
-                pdb.set_trace()
                 image_urls = [
                     f"{DOMAIN}{media_content.image.url}"
                     for media_content in media_content.images.all()
@@ -128,9 +126,7 @@ class Command(BaseCommand):
                         "internet_images": False,
                     }
                     logger.info("Posting Facebook POST")
-                    import pdb
-
-                    pdb.set_trace()
+                    
                     response = requests.post(
                         url=PUBLISH_FACEBOOK_POST_ENDPOINT, json=json
                     )
