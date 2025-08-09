@@ -53,9 +53,8 @@ class Command(BaseCommand):
                     f"{DOMAIN}{media_content.image.url}"
                     for media_content in media_content.images.all()
                 ]
-                # image_urls = ["https://image2.homes.jp/smallimg/image.php?file=http://img.homes.jp/104867/sale/7139/2/1/vsee.jpg&width=600&height=600", "https://image3.homes.jp/smallimg/image.php?file=http%3A%2F%2Fimg.homes.jp%2F147319%2Fsale%2F1578%2F2%2F7%2Fufr8.jpg&width=600&height=600"]
 
-                hashtags = ["#japan", "#cheaphomes"]
+                hashtags = schedule.hashtags
 
                 if social_media == "instagram" and channel == "reel":
                     json = {
