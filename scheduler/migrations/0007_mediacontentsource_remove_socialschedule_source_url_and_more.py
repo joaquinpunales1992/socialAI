@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scheduler", "0006_alter_socialschedule_social_media_and_more"),
     ]

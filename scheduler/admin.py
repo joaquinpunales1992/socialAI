@@ -1,10 +1,21 @@
 import nested_admin
 from django.contrib import admin
-from scheduler.models import SocialSchedule, MediaContentSource,  MediaContent, MediaContentImage
+from scheduler.models import (
+    SocialSchedule,
+    MediaContentSource,
+    MediaContent,
+    MediaContentImage,
+)
 
 
 class SocialScheduleAdmin(admin.ModelAdmin):
-    list_display = ('source', 'social_media', 'social_media_channel', 'schedule', 'last_run')
+    list_display = (
+        "source",
+        "social_media",
+        "social_media_channel",
+        "schedule",
+        "last_run",
+    )
 
 
 class MediaContentImageInline(nested_admin.NestedTabularInline):
@@ -21,6 +32,7 @@ class MediaContentInline(nested_admin.NestedStackedInline):
 @admin.register(MediaContentSource)
 class MediaContentSourceAdmin(nested_admin.NestedModelAdmin):
     inlines = [MediaContentInline]
-    list_display = ('id', 'name')
+    list_display = ("id", "name")
+
 
 admin.site.register(SocialSchedule, SocialScheduleAdmin)

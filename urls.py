@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('nested_admin/', include('nested_admin.urls')),
+    path("nested_admin/", include("nested_admin.urls")),
 ]
 
 if settings.DEBUG:

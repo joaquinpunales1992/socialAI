@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scheduler", "0003_mediacontent_alter_socialschedule_schedule_and_more"),
     ]

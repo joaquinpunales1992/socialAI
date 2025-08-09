@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scheduler", "0008_rename_body_mediacontent_content_data"),
     ]
