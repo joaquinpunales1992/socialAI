@@ -14,7 +14,7 @@ SECRET_KEY = "django-insecure-a!q@wa_ghru5eq)it^_^e89whl(lp%k5%5su^t^8bl5ns7#plh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['social-ai.simplifiedbites.com',]
+ALLOWED_HOSTS = ['social-ai.simplifiedbites.com', '127.0.0.1']
 
 
 # Application definition

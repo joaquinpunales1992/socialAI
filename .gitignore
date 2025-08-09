@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+socialAIenv/
+venv/
+ENV/
+.env/
+
+.idea/
+.vscode/
