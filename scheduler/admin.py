@@ -17,6 +17,8 @@ class SocialScheduleAdmin(admin.ModelAdmin):
         "last_run",
     )
 
+    readonly_fields = ["last_run",]
+
 
 class MediaContentImageInline(nested_admin.NestedTabularInline):
     model = MediaContentImage

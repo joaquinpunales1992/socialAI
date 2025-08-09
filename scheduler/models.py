@@ -54,6 +54,8 @@ class SocialSchedule(models.Model):
         MediaContentSource, on_delete=models.SET_NULL, null=True, blank=True, default=""
     )
     default_caption = models.CharField(max_length=300, blank=True)
+    use_ai_caption = models.BooleanField(default=True)
+    hashtags = models.JSONField(default=list)
     last_run = models.DateTimeField(null=True, blank=True)
     skip = models.BooleanField(default=False)
 
