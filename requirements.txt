@@ -1,0 +1,15 @@
+asgiref==3.9.1
+certifi==2025.8.3
+charset-normalizer==3.4.2
+croniter==6.0.0
+Django==5.2.5
+django-nested-admin==4.1.1
+idna==3.10
+pillow==11.3.0
+python-dateutil==2.9.0.post0
+python-monkey-business==1.1.0
+pytz==2025.2
+requests==2.32.4
+six==1.17.0
+sqlparse==0.5.3
+urllib3==2.5.0
