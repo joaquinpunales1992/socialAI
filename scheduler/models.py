@@ -57,6 +57,9 @@ class SocialSchedule(models.Model):
     last_run = models.DateTimeField(null=True, blank=True)
     skip = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"{self.social_media} - {self.social_media_channel} - {self.source}"
+
     def is_due(self, now=None):
         return True
         if not now:
@@ -66,9 +69,7 @@ class SocialSchedule(models.Model):
             return False
 
         base_time = self.last_run or (now - timezone.timedelta(days=1))
-        import pdb
 
-        pdb.set_trace()
         try:
             itr = croniter(self.schedule, base_time)
             next_run = itr.get_next(datetime)
