@@ -123,7 +123,7 @@ class Command(BaseCommand):
                         "facebook_page_id": schedule_social_media_id,
                         "meta_api_key": schedule_api_token,
                         "use_ai_caption": True,
-                        "internet_images": False,
+                        "internet_images": True,
                     }
                     logger.info("Posting Facebook POST")
                     
