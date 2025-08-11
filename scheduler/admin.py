@@ -1,40 +1,55 @@
-import nested_admin
 from django.contrib import admin
-from scheduler.models import (
-    SocialSchedule,
-    MediaContentSource,
-    MediaContent,
-    MediaContentImage,
+from connectors.models import (
+    ManualConnector,
+    ManualConnectorImage,
+    ScraperConnector,
+    ScrappedItem,
+    SocialPost,
 )
+from scheduler.models import SocialSchedule
 
 
+class ManualConnectorImageAdmin(admin.StackedInline):
+    model = ManualConnectorImage
+
+
+@admin.register(ManualConnector)
+class ManualConnectorAdmin(admin.ModelAdmin):
+    inlines = [ManualConnectorImageAdmin]
+    list_display = ("name",)
+
+
+@admin.register(ScraperConnector)
+class ScraperConnectorAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+
+
+@admin.register(SocialSchedule)
 class SocialScheduleAdmin(admin.ModelAdmin):
-    list_display = (
-        "source",
-        "social_media",
-        "social_media_channel",
-        "schedule",
+    list_display = ("social_media", "social_media_channel", "source")
+    list_filter = ("social_media",)
+    readonly_fields = [
         "last_run",
+    ]
+
+
+@admin.register(SocialPost)
+class SocialPostAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "scrapped_item",
+        "datetime",
     )
-
-    readonly_fields = ["last_run",]
-
-
-class MediaContentImageInline(nested_admin.NestedTabularInline):
-    model = MediaContentImage
-    extra = 1
+    list_filter = ("scrapped_item", "datetime")
 
 
-class MediaContentInline(nested_admin.NestedStackedInline):
-    model = MediaContent
-    inlines = [MediaContentImageInline]
-    extra = 1
-
-
-@admin.register(MediaContentSource)
-class MediaContentSourceAdmin(nested_admin.NestedModelAdmin):
-    inlines = [MediaContentInline]
-    list_display = ("id", "name")
-
-
-admin.site.register(SocialSchedule, SocialScheduleAdmin)
+@admin.register(ScrappedItem)
+class ScrappedItemAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "connector",
+    )
+    list_filter = ("connector",)
+    readonly_fields = [
+        "connector",
+    ]

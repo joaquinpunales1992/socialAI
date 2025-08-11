@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "nested_admin",
     "scheduler",
+    "connectors",
 ]
 
 MIDDLEWARE = [
@@ -70,7 +71,7 @@ WSGI_APPLICATION = "wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": BASE_DIR / "socialAI" / "db.sqlite3",
     }
 }
 
@@ -120,3 +121,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+
+DOMAIN = "https://social-ai.simplifiedbites.com"

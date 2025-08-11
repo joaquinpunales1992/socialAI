@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from croniter import croniter
 from datetime import datetime
+from connectors.models import Connector
 
 
 class MediaContentSource(models.Model):
@@ -51,13 +52,14 @@ class SocialSchedule(models.Model):
     social_media_id = models.CharField(max_length=100)
     schedule = models.CharField(max_length=100, default="*/15 * * * *")
     source = models.ForeignKey(
-        MediaContentSource, on_delete=models.SET_NULL, null=True, blank=True, default=""
+        Connector, on_delete=models.SET_NULL, null=True, blank=True, default=""
     )
+
     default_caption = models.CharField(max_length=300, blank=True)
     use_ai_caption = models.BooleanField(default=True)
     hashtags = models.JSONField(default=list)
     last_run = models.DateTimeField(null=True, blank=True)
-    skip = models.BooleanField(default=False)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.social_media} - {self.social_media_channel} - {self.source}"
