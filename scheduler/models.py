@@ -70,7 +70,6 @@ class SocialSchedule(models.Model):
         return [hashtag for hashtag in self.hashtags.names()]
     
     def is_due(self, now=None):
-        return True
         if not now:
             now = timezone.now()
 
