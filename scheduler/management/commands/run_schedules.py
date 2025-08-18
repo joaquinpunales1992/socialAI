@@ -1,28 +1,14 @@
 from django.core.management.base import BaseCommand
 import requests
+from django.conf import settings
 import logging
 from django.utils import timezone
 from scheduler.models import SocialSchedule
+from scheduler.constants import *
+from connectors.utils import scrape_page
+from connectors.models import ManualConnector, ScraperConnector, SocialPost, ScrappedItem
 
 logger = logging.getLogger(__name__)
-
-
-PUBLISH_FACEBOOK_POST_ENDPOINT = (
-    "https://social-ai-s1kk.onrender.com/publish-facebook-post/"
-)
-PUBLISH_FACEBOOK_REEL_ENDPOINT = (
-    "https://social-ai-s1kk.onrender.com/publish-facebook-reel/"
-)
-PUBLISH_INSTAGRAM_POST_ENDPOINT = (
-    "https://social-ai-s1kk.onrender.com/publish-instagram-post/"
-)
-PUBLISH_INSTAGRAM_REEL_ENDPOINT = (
-    "https://social-ai-s1kk.onrender.com/publish-instagram-reel/"
-)
-REPLY_INSTAGRAM_COMMENTS_ENDPOINT = (
-    "https://social-ai-s1kk.onrender.com/reply-instagram-reel-comments/"
-)
-DOMAIN = "https://social-ai.simplifiedbites.com"
 
 
 class Command(BaseCommand):
@@ -30,31 +16,36 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         now = timezone.now()
-        schedules = SocialSchedule.objects.all()
+        schedules = SocialSchedule.objects.filter(active=True)
 
         for schedule in schedules:
-            if not schedule.is_due(now) or schedule.skip:
-                self.stdout.write(f"Skipping {schedule.id}: Not due yet.")
+            
+            if not schedule.is_due(now):
+                logger.info(f"Skipping {schedule.id}: Not due yet.")
                 continue
 
             social_media = schedule.social_media.lower()
             channel = schedule.social_media_channel.lower()
 
-            self.stdout.write(f"Running: {social_media} - {channel}")
+            logger.info(f"Running: {social_media} - {channel}")
 
             try:
-                media_content = schedule.source.media_contents.first()
-                content_data = media_content.content_data
                 schedule_api_token = schedule.api_key
                 schedule_social_media_id = schedule.social_media_id
                 schedule_default_caption = schedule.default_caption
+                hashtags = schedule.get_hashtags()
 
-                image_urls = [
-                    f"{DOMAIN}{media_content.image.url}"
-                    for media_content in media_content.images.all()
-                ]
+                if isinstance(schedule.source, ManualConnector):
+                    content_data = schedule.source.get_content_data
+                    image_urls = schedule.source.get_image_urls
 
-                hashtags = schedule.hashtags
+                elif isinstance(schedule.source, ScraperConnector):
+                    content_data, scraped_item_pk = schedule.source.get_content_data(
+                        for_social_media=social_media, for_channel=channel
+                    )
+                    image_urls = schedule.source.get_image_urls(for_social_media=social_media, for_channel=channel)
+
+                image_urls = image_urls[:4]
 
                 if social_media == "instagram" and channel == "reel":
                     json = {
@@ -70,7 +61,7 @@ class Command(BaseCommand):
                         "video_text": "",
                         "internet_images": True,
                     }
-                    logger.info("Posting Instagram REEL")
+                    logger.info("Posting Instagram REEL...")
                     response = requests.post(
                         url=PUBLISH_INSTAGRAM_REEL_ENDPOINT, json=json
                     )
@@ -87,7 +78,8 @@ class Command(BaseCommand):
                         "meta_api_key": schedule_api_token,
                         "use_ai_caption": True,
                     }
-                    logger.info("Posting Instagram POST")
+                    logger.info("Posting Instagram POST...")
+                    
                     response = requests.post(
                         url=PUBLISH_INSTAGRAM_POST_ENDPOINT, json=json
                     )
@@ -107,11 +99,12 @@ class Command(BaseCommand):
                         "video_text": "",
                         "internet_images": True,
                     }
-                    logger.info("Posting Facebook REEL")
+                    logger.info("Posting Facebook REEL...")
                     response = requests.post(
                         url=PUBLISH_FACEBOOK_REEL_ENDPOINT, json=json
                     )
                     logger.info(f"RESPONSE: {response.reason}")
+
                 elif social_media == "facebook" and channel == "post":
                     json = {
                         "content_data": content_data,
@@ -124,21 +117,33 @@ class Command(BaseCommand):
                         "use_ai_caption": True,
                         "internet_images": True,
                     }
-                    logger.info("Posting Facebook POST")
+                    logger.info("Posting Facebook POST...")
                     
                     response = requests.post(
                         url=PUBLISH_FACEBOOK_POST_ENDPOINT, json=json
                     )
-                    logger.info(f"RESPONSE: {response.reason}")
+                    logger.info(f"RESPONSE: {response.reason}")  
                 else:
                     self.stdout.write(
-                        self.style.WARNING(f"Unknown combo: {social_media} - {channel}")
+                        logger.warning(f"Unknown combo: {social_media} - {channel}")
                     )
                     continue
+
+                # Record the posted content
+                scraped_item = ScrappedItem.objects.get(pk=scraped_item_pk)
+                SocialPost.objects.create(
+                    scrapped_item=scraped_item,
+                    ai_caption="",
+                    caption="",
+                    datetime=now,
+                    social_media=social_media,
+                    content_type=channel,
+                    sound_track="",
+                )
 
                 # Mark as run
                 schedule.last_run = now
                 schedule.save()
 
             except Exception as e:
-                self.stdout.write(self.style.ERROR(f"Error on {schedule.id}: {str(e)}"))
+                logger.error(f"Error on {schedule.id}: {str(e)}")

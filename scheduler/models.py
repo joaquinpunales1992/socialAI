@@ -34,6 +34,8 @@ class MediaContentImage(models.Model):
     def __str__(self):
         return f"Image for Media Content {self.media_content_id}"
 
+from taggit.managers import TaggableManager
+
 
 class SocialSchedule(models.Model):
     class SocialMedia(models.TextChoices):
@@ -44,26 +46,29 @@ class SocialSchedule(models.Model):
         REEL = "reel", "Reel"
         POST = "post", "Post"
 
-    social_media = models.CharField(max_length=100, choices=SocialMedia.choices)
+    social_media = models.CharField(max_length=100, choices=SocialMedia.choices, help_text="Social Media Platform")
     social_media_channel = models.CharField(
-        max_length=100, choices=SocialMediaChannel.choices
+        max_length=100, choices=SocialMediaChannel.choices, help_text="Channel for the social media. Example: Post, Reel, etc."
     )
-    api_key = models.CharField(max_length=300)
-    social_media_id = models.CharField(max_length=100)
-    schedule = models.CharField(max_length=100, default="*/15 * * * *")
+    api_key = models.CharField(max_length=300, help_text="API Key for the social media platform")
+    social_media_id = models.CharField(max_length=100, help_text="Social Media ID for the account")
+    schedule = models.CharField(max_length=100, default="*/15 * * * *", help_text="Cron schedule expression")
     source = models.ForeignKey(
-        Connector, on_delete=models.SET_NULL, null=True, blank=True, default=""
+        Connector, on_delete=models.SET_NULL, null=True, blank=True, default="", help_text="Source of the content"
     )
 
-    default_caption = models.CharField(max_length=300, blank=True)
-    use_ai_caption = models.BooleanField(default=True)
-    hashtags = models.JSONField(default=list)
-    last_run = models.DateTimeField(null=True, blank=True)
-    active = models.BooleanField(default=True)
+    default_caption = models.CharField(max_length=300, blank=True, help_text="Default caption for the post.")
+    use_ai_caption = models.BooleanField(default=True, verbose_name="Use AI Caption", help_text="Use AI to generate caption for the post.")
+    hashtags = TaggableManager(blank=True, help_text="List of hashtags to be used in the post.")
+    last_run = models.DateTimeField(null=True, blank=True, help_text="Last time the schedule was run.")
+    active = models.BooleanField(default=True, help_text="Is the schedule active?")
 
     def __str__(self):
         return f"{self.social_media} - {self.social_media_channel} - {self.source}"
 
+    def get_hashtags(self):
+        return [hashtag for hashtag in self.hashtags.names()]
+    
     def is_due(self, now=None):
         return True
         if not now:
@@ -73,12 +78,16 @@ class SocialSchedule(models.Model):
             return False
 
         base_time = self.last_run or (now - timezone.timedelta(days=1))
-
+        
         try:
             itr = croniter(self.schedule, base_time)
             next_run = itr.get_next(datetime)
 
-            return now >= timezone.make_aware(next_run)
+            # Check if next_run is timezone-aware
+            if timezone.is_aware(next_run):
+                return now >= next_run
+            else:
+                return now >= timezone.make_aware(next_run)
         except Exception as e:
             print(f"Invalid cron expression for schedule ID {self.id}: {self.schedule}")
             return False
