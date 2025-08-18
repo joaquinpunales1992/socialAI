@@ -58,12 +58,12 @@ class ScraperConnector(Connector):
     def __str__(self):
         return f"Scraper Connector: {self.name}"
 
-    def persist_scraped_data(self, scraped_data):
+    def _persist_scraped_data(self, scraped_data):
         for data in scraped_data:
             scraped_item = ScrappedItem.objects.create(connector=self, scraped_data=data)
             return scraped_item.pk
 
-    def get_scraped_data(self, for_social_media=None, for_channel=None):
+    def get_or_persist_scraped_data(self, for_social_media=None, for_channel=None):
         posted_items_pks = SocialPost.objects.filter(
             scrapped_item__connector=self,
             social_media=for_social_media,
@@ -75,7 +75,6 @@ class ScraperConnector(Connector):
             if items:
                 random_item = random.choice(items)
                 return random_item.scraped_data, random_item.pk
-            return None
         else:
             scraped_data = scrape_listing_page(
                 self.base_url,
@@ -83,20 +82,16 @@ class ScraperConnector(Connector):
                 self.title_selector,
                 self.description_selector,
             )
-            scraped_item_pk = self.persist_scraped_data(scraped_data)
+            scraped_item_pk = self._persist_scraped_data(scraped_data)
             return scraped_data, scraped_item_pk
 
-    def get_content_data(self, for_social_media=None, for_channel=None):
-        scraped_data, scraped_item_pk = self.get_scraped_data(for_social_media, for_channel)
-        try:
-            return f"{scraped_data.get('title')} - {scraped_data.get('description')}", scraped_item_pk
-        except Exception as e:
-            pass
 
-    def get_image_urls(self, for_social_media=None, for_channel=None):
-        scraped_data, _ = self.get_scraped_data(for_social_media, for_channel)
+    def get_data(self, for_social_media=None, for_channel=None):
+        scraped_data, scraped_item_pk  = self.get_or_persist_scraped_data(for_social_media, for_channel)
         try:
-            return [scraped_data.get("images")]
+            images = [scraped_data.get("images")]
+            content_data = f"{scraped_data.get('title')} - {scraped_data.get('description')}"
+            return images, content_data, scraped_item_pk
         except Exception as e:
             pass
 
