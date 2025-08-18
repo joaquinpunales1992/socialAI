@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "nested_admin",
     "scheduler",
     "connectors",
+    "taggit",
 ]
 
 MIDDLEWARE = [
