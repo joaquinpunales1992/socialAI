@@ -40,10 +40,9 @@ class Command(BaseCommand):
                     image_urls = schedule.source.get_image_urls
 
                 elif isinstance(schedule.source, ScraperConnector):
-                    content_data, scraped_item_pk = schedule.source.get_content_data(
+                    image_urls, content_data, scraped_item_pk = schedule.source.get_data(
                         for_social_media=social_media, for_channel=channel
                     )
-                    image_urls = schedule.source.get_image_urls(for_social_media=social_media, for_channel=channel)
 
                 image_urls = image_urls[:4]
 
